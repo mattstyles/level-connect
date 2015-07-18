@@ -5,7 +5,6 @@ import path from 'path'
 import koa from 'koa'
 import route from 'koa-route'
 import parse from 'co-body'
-import denodeify from 'denodeify'
 
 import party from 'level-party'
 import sublevel from 'level-sublevel'
@@ -48,13 +47,34 @@ app.use( function *( next ) {
     yield next
 })
 
-app.use( route.post( '/root/:key', function *( key ) {
+// app.use( route.post( '/root/:key', function *( key ) {
+//     let body = yield parse( this )
+//
+//     try {
+//         yield root.put( key, body )
+//         Object.assign( this, success() )
+//     } catch( err ) {
+//         Object.assign( this, fail( err ) )
+//     }
+// }))
+
+
+app.use( route.post( '/:sublevel/:key', function *( sublevel, key ) {
     let body = yield parse( this )
 
     try {
-        yield promisify( root ).put( key, body )
+        if ( sublevel === 'root' ) {
+            // @TODO pretty sure this promisify call will be slow
+            yield promisify( root ).put( key, body )
+        } else {
+            let sub = promisify( root.sublevel( sublevel, {
+                encoding: 'json'
+            }))
+            yield sub.put( key, body )
+        }
         Object.assign( this, success() )
     } catch( err ) {
+        console.log( err )
         Object.assign( this, fail( err ) )
     }
 }))
