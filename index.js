@@ -18,10 +18,10 @@ const level = party( dbpath, {
 })
 const root = sublevel( level )
 
-function success() {
+function success( res ) {
     return {
         status: 200,
-        body: {
+        body: res || {
             body: 'ok'
         }
     }
@@ -31,7 +31,7 @@ function fail( err ) {
     return {
         status: 500,
         body: {
-            body: err
+            body: err.message
         }
     }
 }
@@ -47,34 +47,30 @@ app.use( function *( next ) {
     yield next
 })
 
-// app.use( route.post( '/root/:key', function *( key ) {
-//     let body = yield parse( this )
-//
-//     try {
-//         yield root.put( key, body )
-//         Object.assign( this, success() )
-//     } catch( err ) {
-//         Object.assign( this, fail( err ) )
-//     }
-// }))
-
-
+// PUT
 app.use( route.post( '/:sublevel/:key', function *( sublevel, key ) {
     let body = yield parse( this )
 
     try {
-        if ( sublevel === 'root' ) {
-            // @TODO pretty sure this promisify call will be slow
-            yield promisify( root ).put( key, body )
-        } else {
-            let sub = promisify( root.sublevel( sublevel, {
-                encoding: 'json'
-            }))
-            yield sub.put( key, body )
-        }
+        let sub = promisify( root.sublevel( sublevel, {
+            encoding: 'json'
+        }))
+        yield sub.put( key, body )
         Object.assign( this, success() )
     } catch( err ) {
-        console.log( err )
+        Object.assign( this, fail( err ) )
+    }
+}))
+
+// GET
+app.use( route.get( '/:sublevel/:key', function *( sublevel, key ) {
+    try {
+        let sub = promisify( root.sublevel( sublevel, {
+            encoding: 'json'
+        }))
+        let res = yield sub.get( key )
+        Object.assign( this, success( res ) )
+    } catch( err ) {
         Object.assign( this, fail( err ) )
     }
 }))
