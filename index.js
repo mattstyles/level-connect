@@ -5,20 +5,27 @@ import path from 'path'
 import koa from 'koa'
 import route from 'koa-route'
 import parse from 'co-body'
+
 import bunyan from 'bunyan'
+import uuid from 'node-uuid'
 
 import party from 'level-party'
 import sublevel from 'level-sublevel'
 import promisify from 'level-promisify'
 
-
+// App stuff
 const app = koa()
 const dbpath = process.env.CONNECT_PATH || path.join( os.homedir(), '.level-connect.lev' )
 const level = party( dbpath, {
     encoding: 'json'
 })
 const root = sublevel( level )
+const clients = promisify( root.sublevel( 'x-client', {
+    encoding: 'json'
+}))
+const TOKEN_REQUEST_URL = '/new'
 
+// Logger stuff
 const log = bunyan.createLogger({
     name: 'level-connect'
 })
@@ -27,17 +34,36 @@ if ( process.env.DEBUG ) {
     log.level( 'debug' )
 }
 
-// Define routes
 
-// Quick header check
+
+// Client handshake
 app.use( function *( next ) {
-    if ( !this.request.headers[ 'x-level-connect' ] ) {
+    let onForbidden = () => {
+        log.warn( '403', this.request.ip, this.request.header[ 'user-agent' ], this.request.method, this.request.url )
         this.status = 403
+    }
+
+    // Let through the token request route
+    if ( this.request.url === TOKEN_REQUEST_URL ) {
+        yield next
         return
     }
 
-    this.xClient = this.request.headers[ 'x-level-connect' ]
-    yield next
+    if ( !this.request.headers[ 'x-level-connect' ] ) {
+        onForbidden()
+        return
+    }
+
+    // Check the client is registered
+    let clientID = this.request.headers[ 'x-level-connect' ]
+    try {
+        yield clients.get( clientID )
+        this.xClient = clientID
+        yield next
+    } catch( err ) {
+        onForbidden()
+        return
+    }
 })
 
 
@@ -74,6 +100,53 @@ app.use( function *( next ) {
 
     yield next
 })
+
+
+// Define routes
+
+/**
+ * Client register
+ * @example client Object
+ * {
+ *   // Denotes if the token is currently active
+ *   // Non-active tokens will eventually be pruned
+ *   active: true
+ *
+ *   // iso time, tokens expire
+ *   timestamp: '2015-07-20T16:19:40.513Z'
+ * }
+ */
+app.use( route.post( TOKEN_REQUEST_URL, function *() {
+    let onForbidden = () => {
+        log.warn( '403', this.request.ip, this.request.header[ 'user-agent' ], this.request.method, this.request.url )
+        this.status = 403
+    }
+
+    if ( !this.request.headers[ 'x-level-connect' ] ) {
+        onForbidden()
+        return
+    }
+
+    let newID = uuid.v4()
+
+    try {
+        yield clients.put( newID, {
+            active: true,
+            timestamp: new Date().toISOString()
+        })
+    } catch( err ) {
+        log.error( this.request.ip, this.request.header[ 'user-agent' ], this.request.method, this.request.url, 'Error putting new token' )
+        this.status = 500
+        return
+    }
+
+    log.info( newID, this.request.method, this.request.url, 'OK', this.request.ip )
+    log.debug( JSON.stringify( this.request ) )
+    this.status = 201
+    this.body = {
+        id: newID
+    }
+}))
 
 // PUT
 app.use( route.post( '/:sublevel/:key', function *( sublevel, key ) {
