@@ -19,13 +19,29 @@ $ CONNECT_PORT=5001 ./bin/start
 
 ```sh
 $ curl -X POST \
-     -H 'X-LEVEL-CONNECT: <client_id>' \
-     -d '{"foo":"bar"}' \
-     localhost:5000/users/foo
+  -H 'X-LEVEL-CONNECT: <client_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{"foo":"bar"}' \
+  localhost:5000/users/foo
+
+> 201 {"body":"ok"}
 
 $ curl -X GET \
-     -H 'X-LEVEL-CONNECT: <client_id>' \
-     localhost:5001/users/foo
+  -H 'X-LEVEL-CONNECT: <client_id>' \
+  localhost:5001/users/foo
 
-> {"foo":"bar"}
+> 200 {"foo":"bar"}
+
+$ curl -X DELETE \
+  -H 'X-LEVEL-CONNECT: <client_id>' \
+  localhost:5001/users/foo
+
+> 200 {"body":"ok"}
+
+$ curl -X GET \
+  -H 'X-LEVEL-CONNECT: <client_id>' \
+  localhost:5001/users/foo
+
+> 404 {"foo":"bar"}
+
 ```
