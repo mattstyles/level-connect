@@ -6,6 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mattstyles/level-connect.git"
+  },
+  "homepage": "https://github.com/mattstyles/level-connect",
   "keywords": [
     "leveldb",
     "level",
@@ -18,8 +23,12 @@
   "engines": {
     "node": ">=2.4.0"
   },
-  "author": "Matt Styles",
-  "license": "ISC",
+  "author": {
+    "name": "Matt Styles",
+    "email": "matt@veryfizzyjelly.com",
+    "url": "http://veryfizzyjelly.com"
+  },
+  "license": "MIT",
   "dependencies": {
     "babel-core": "^5.7.4",
     "co-body": "^2.0.0",
