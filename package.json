@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "Connect to a multi handle sublevel enabled db over http",
   "main": "index.js",
+  "bin": {
+    "connect": "bin/connect"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
