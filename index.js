@@ -24,6 +24,7 @@ const clients = promisify( root.sublevel( 'x-client', {
     encoding: 'json'
 }))
 const TOKEN_REQUEST_URL = '/new'
+const TOKEN_STALE = 60 * 60 * 24 * 3 // 3 days
 
 // Logger stuff
 const log = bunyan.createLogger({
@@ -38,9 +39,16 @@ if ( process.env.DEBUG ) {
 
 // Client handshake
 app.use( function *( next ) {
-    let onForbidden = () => {
+    let onForbidden = ( err ) => {
         log.warn( '403', this.request.ip, this.request.header[ 'user-agent' ], this.request.method, this.request.url )
         this.status = 403
+
+        if ( err ) {
+            log.error( err )
+            this.body = {
+                body: err
+            }
+        }
     }
 
     // Let through the token request route
@@ -57,11 +65,29 @@ app.use( function *( next ) {
     // Check the client is registered
     let clientID = this.request.headers[ 'x-level-connect' ]
     try {
-        yield clients.get( clientID )
+        // Grab the token and make sure it is still fresh
+        let res = yield clients.get( clientID )
+        if ( !res.active ) {
+            throw new Error( 'Token inactive. Try requesting a new one.' )
+        }
+
+        // Check token should not be stale
+        if ( Date.now() - res.timestamp > TOKEN_STALE ) {
+            yield clients.put( clientID, Object.assign( res, {
+                active: false
+            }))
+            throw new Error( 'Token stale. Try requesting a new one.' )
+        }
+
+        // Freshen the timestamp
+        yield clients.put( clientID, Object.assign( res, {
+            timestamp: Date.now()
+        }))
+
         this.xClient = clientID
         yield next
     } catch( err ) {
-        onForbidden()
+        onForbidden( err.message )
         return
     }
 })
@@ -122,17 +148,19 @@ app.use( route.post( TOKEN_REQUEST_URL, function *() {
         this.status = 403
     }
 
+    // Quick check something is in the header
     if ( !this.request.headers[ 'x-level-connect' ] ) {
         onForbidden()
         return
     }
 
+    // @TODO is this the best way to create the token? by ip/hostname or something?
     let newID = uuid.v4()
 
     try {
         yield clients.put( newID, {
             active: true,
-            timestamp: new Date().toISOString()
+            timestamp: Date.now()
         })
     } catch( err ) {
         log.error( this.request.ip, this.request.header[ 'user-agent' ], this.request.method, this.request.url, 'Error putting new token' )
