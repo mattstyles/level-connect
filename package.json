@@ -1,6 +1,6 @@
 {
   "name": "level-connect",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Connect to a multi handle sublevel enabled db over http",
   "main": "index.js",
   "bin": {
