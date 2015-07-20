@@ -18,7 +18,7 @@ const level = party( dbpath, {
 })
 const root = sublevel( level )
 
-function success( res ) {
+app.onSuccess = function( res ) {
     return {
         status: 200,
         body: res || {
@@ -27,9 +27,9 @@ function success( res ) {
     }
 }
 
-function fail( err ) {
+app.onFail = function( err ) {
     return {
-        status: 500,
+        status: err.notFound ? 404 : 500,
         body: {
             body: err.message
         }
@@ -45,6 +45,7 @@ app.use( function *( next ) {
         return
     }
 
+    this.xClient = this.request.headers[ 'x-level-connect' ]
     yield next
 })
 
@@ -57,9 +58,9 @@ app.use( route.post( '/:sublevel/:key', function *( sublevel, key ) {
             encoding: 'json'
         }))
         yield sub.put( key, body )
-        Object.assign( this, success() )
+        Object.assign( this, app.onSuccess() )
     } catch( err ) {
-        Object.assign( this, fail( err ) )
+        Object.assign( this, app.onFail( err ) )
     }
 }))
 
@@ -70,9 +71,9 @@ app.use( route.get( '/:sublevel/:key', function *( sublevel, key ) {
             encoding: 'json'
         }))
         let res = yield sub.get( key )
-        Object.assign( this, success( res ) )
+        Object.assign( this, app.onSuccess( res ) )
     } catch( err ) {
-        Object.assign( this, fail( err ) )
+        Object.assign( this, app.onFail( err ) )
     }
 }))
 
@@ -83,9 +84,9 @@ app.use( route.delete( '/:sublevel/:key', function *( sublevel, key ) {
             encoding: 'json'
         }))
         yield sub.del( key )
-        Object.assign( this, success() )
+        Object.assign( this, app.onSuccess() )
     } catch( err ) {
-        Object.assign( this, fail( err ) )
+        Object.assign( this, app.onFail( err ) )
     }
 }))
 
