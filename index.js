@@ -18,23 +18,6 @@ const level = party( dbpath, {
 })
 const root = sublevel( level )
 
-app.onSuccess = function( res ) {
-    return {
-        status: 200,
-        body: res || {
-            body: 'ok'
-        }
-    }
-}
-
-app.onFail = function( err ) {
-    return {
-        status: err.notFound ? 404 : 500,
-        body: {
-            body: err.message
-        }
-    }
-}
 
 // Define routes
 
@@ -49,6 +32,32 @@ app.use( function *( next ) {
     yield next
 })
 
+
+// Make independent handlers for each request
+app.use( function *( next ) {
+    this.onSuccess = function( res ) {
+        console.log( 'success', this.xClient, '200' )
+        return {
+            status: 200,
+            body: res || {
+                body: 'ok'
+            }
+        }
+    }
+
+    this.onFail = function( err ) {
+        console.log( 'error', this.xClient, err.message )
+        return {
+            status: err.notFound ? 404 : 500,
+            body: {
+                body: err.message
+            }
+        }
+    }
+
+    yield next
+})
+
 // PUT
 app.use( route.post( '/:sublevel/:key', function *( sublevel, key ) {
     let body = yield parse( this )
@@ -58,9 +67,9 @@ app.use( route.post( '/:sublevel/:key', function *( sublevel, key ) {
             encoding: 'json'
         }))
         yield sub.put( key, body )
-        Object.assign( this, app.onSuccess() )
+        Object.assign( this, this.onSuccess() )
     } catch( err ) {
-        Object.assign( this, app.onFail( err ) )
+        Object.assign( this, this.onFail( err ) )
     }
 }))
 
@@ -71,9 +80,9 @@ app.use( route.get( '/:sublevel/:key', function *( sublevel, key ) {
             encoding: 'json'
         }))
         let res = yield sub.get( key )
-        Object.assign( this, app.onSuccess( res ) )
+        Object.assign( this, this.onSuccess( res ) )
     } catch( err ) {
-        Object.assign( this, app.onFail( err ) )
+        Object.assign( this, this.onFail( err ) )
     }
 }))
 
@@ -84,9 +93,9 @@ app.use( route.delete( '/:sublevel/:key', function *( sublevel, key ) {
             encoding: 'json'
         }))
         yield sub.del( key )
-        Object.assign( this, app.onSuccess() )
+        Object.assign( this, this.onSuccess() )
     } catch( err ) {
-        Object.assign( this, app.onFail( err ) )
+        Object.assign( this, this.onFail( err ) )
     }
 }))
 
