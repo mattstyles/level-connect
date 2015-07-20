@@ -5,6 +5,7 @@ import path from 'path'
 import koa from 'koa'
 import route from 'koa-route'
 import parse from 'co-body'
+import bunyan from 'bunyan'
 
 import party from 'level-party'
 import sublevel from 'level-sublevel'
@@ -18,6 +19,13 @@ const level = party( dbpath, {
 })
 const root = sublevel( level )
 
+const log = bunyan.createLogger({
+    name: 'level-connect'
+})
+
+if ( process.env.DEBUG ) {
+    log.level( 'debug' )
+}
 
 // Define routes
 
@@ -36,9 +44,13 @@ app.use( function *( next ) {
 // Make independent handlers for each request
 app.use( function *( next ) {
     this.onSuccess = function( res ) {
-        console.log( 'success', this.xClient, '200' )
+        let status = 200
+
+        log.info( this.xClient, this.request.method, this.request.url, 'OK', this.request.ip )
+        log.debug( JSON.stringify( this.request ) )
+
         return {
-            status: 200,
+            status: status,
             body: res || {
                 body: 'ok'
             }
@@ -46,9 +58,14 @@ app.use( function *( next ) {
     }
 
     this.onFail = function( err ) {
-        console.log( 'error', this.xClient, err.message )
+        let status = err.notFound ? 404 : 500
+
+        log.error( this.xClient, this.request.method, this.request.url, status, this.request.ip, err.message )
+        log.debug( JSON.stringify( this.request ) )
+        log.debug( err )
+
         return {
-            status: err.notFound ? 404 : 500,
+            status: status,
             body: {
                 body: err.message
             }
