@@ -6,127 +6,27 @@ import koa from 'koa'
 import route from 'koa-route'
 import parse from 'co-body'
 
-import bunyan from 'bunyan'
 import uuid from 'node-uuid'
 
-import party from 'level-party'
-import sublevel from 'level-sublevel'
 import promisify from 'level-promisify'
 
 // App stuff
 const app = koa()
-const dbpath = process.env.CONNECT_PATH || path.join( os.homedir(), '.level-connect.lev' )
-const level = party( dbpath, {
-    encoding: 'json'
-})
-const root = sublevel( level )
-const clients = promisify( root.sublevel( 'x-client', {
-    encoding: 'json'
-}))
+
 const TOKEN_REQUEST_URL = '/new'
-const TOKEN_STALE = 60 * 60 * 24 * 3 // 3 days
 
-// Logger stuff
-const log = bunyan.createLogger({
-    name: 'level-connect'
-})
-
-if ( process.env.DEBUG ) {
-    log.level( 'debug' )
-}
+import handlers from './lib/handlers'
+import handshake from './lib/handshake'
+import { clients } from './lib/db'
+import root from './lib/db'
+import log from './lib/log'
 
 
+// Output handlers
+app.use( handlers() )
 
 // Client handshake
-app.use( function *( next ) {
-    let onForbidden = ( err ) => {
-        log.warn( '403', this.request.ip, this.request.header[ 'user-agent' ], this.request.method, this.request.url )
-        this.status = 403
-
-        if ( err ) {
-            log.error( err )
-            this.body = {
-                body: err
-            }
-        }
-    }
-
-    // Let through the token request route
-    if ( this.request.url === TOKEN_REQUEST_URL ) {
-        yield next
-        return
-    }
-
-    if ( !this.request.headers[ 'x-level-connect' ] ) {
-        onForbidden()
-        return
-    }
-
-    // Check the client is registered
-    let clientID = this.request.headers[ 'x-level-connect' ]
-    try {
-        // Grab the token and make sure it is still fresh
-        let res = yield clients.get( clientID )
-        if ( !res.active ) {
-            throw new Error( 'Token inactive. Try requesting a new one.' )
-        }
-
-        // Check token should not be stale
-        if ( Date.now() - res.timestamp > TOKEN_STALE ) {
-            yield clients.put( clientID, Object.assign( res, {
-                active: false
-            }))
-            throw new Error( 'Token stale. Try requesting a new one.' )
-        }
-
-        // Freshen the timestamp
-        yield clients.put( clientID, Object.assign( res, {
-            timestamp: Date.now()
-        }))
-
-        this.xClient = clientID
-        yield next
-    } catch( err ) {
-        onForbidden( err.message )
-        return
-    }
-})
-
-
-// Make independent handlers for each request
-app.use( function *( next ) {
-    this.onSuccess = function( res ) {
-        let status = 200
-
-        log.info( this.xClient, this.request.method, this.request.url, 'OK', this.request.ip )
-        log.debug( JSON.stringify( this.request ) )
-
-        return {
-            status: status,
-            body: res || {
-                body: 'ok'
-            }
-        }
-    }
-
-    this.onFail = function( err ) {
-        let status = err.notFound ? 404 : 500
-
-        log.error( this.xClient, this.request.method, this.request.url, status, this.request.ip, err.message )
-        log.debug( JSON.stringify( this.request ) )
-        log.debug( err )
-
-        return {
-            status: status,
-            body: {
-                body: err.message
-            }
-        }
-    }
-
-    yield next
-})
-
+app.use( handshake() )
 
 // Define routes
 
@@ -149,7 +49,7 @@ app.use( route.post( TOKEN_REQUEST_URL, function *() {
     }
 
     // Quick check something is in the header
-    if ( !this.request.headers[ 'x-level-connect' ] ) {
+    if ( !this.request.headers[ CONSTANTS.TOKEN_HEADER ] ) {
         onForbidden()
         return
     }
@@ -170,6 +70,7 @@ app.use( route.post( TOKEN_REQUEST_URL, function *() {
 
     log.info( newID, this.request.method, this.request.url, 'OK', this.request.ip )
     log.debug( JSON.stringify( this.request ) )
+    
     this.status = 201
     this.body = {
         id: newID
