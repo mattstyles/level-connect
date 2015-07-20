@@ -38,6 +38,7 @@ function fail( err ) {
 
 // Define routes
 
+// Quick header check
 app.use( function *( next ) {
     if ( !this.request.headers[ 'x-level-connect' ] ) {
         this.status = 403
@@ -70,6 +71,19 @@ app.use( route.get( '/:sublevel/:key', function *( sublevel, key ) {
         }))
         let res = yield sub.get( key )
         Object.assign( this, success( res ) )
+    } catch( err ) {
+        Object.assign( this, fail( err ) )
+    }
+}))
+
+// DELETE
+app.use( route.delete( '/:sublevel/:key', function *( sublevel, key ) {
+    try {
+        let sub = promisify( root.sublevel( sublevel, {
+            encoding: 'json'
+        }))
+        yield sub.del( key )
+        Object.assign( this, success() )
     } catch( err ) {
         Object.assign( this, fail( err ) )
     }

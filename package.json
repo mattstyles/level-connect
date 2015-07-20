@@ -15,6 +15,9 @@
     "sublevel",
     "party"
   ],
+  "engines": {
+    "node": ">=2.4.0"
+  },
   "author": "Matt Styles",
   "license": "ISC",
   "dependencies": {
