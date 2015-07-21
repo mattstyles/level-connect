@@ -33,6 +33,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "JSONStream": "^1.0.4",
     "babel-core": "^5.7.4",
     "bunyan": "^1.4.0",
     "co-body": "^2.0.0",
