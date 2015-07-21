@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+
+require('babel-core/register')({
+    optional: [
+        'es7.classProperties'
+    ],
+    loose: [
+        'es6.modules',
+        'es6.classes'
+    ],
+    ignore: /level-connect\/node_modules/
+})
+
+// Will prune inactive tokens
+require( '../lib/prune' )
