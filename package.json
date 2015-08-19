@@ -35,7 +35,7 @@
   "dependencies": {
     "JSONStream": "^1.0.4",
     "babel-core": "^5.7.4",
-    "bunyan": "^1.4.0",
+    "bunyan": "mattstyles/node-bunyan",
     "co-body": "^2.0.0",
     "denodeify": "^1.2.1",
     "eventemitter3": "^1.1.1",
