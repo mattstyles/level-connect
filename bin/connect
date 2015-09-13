@@ -1,18 +1,8 @@
 #!/usr/bin/env node
 
-require('babel-core/register')({
-    optional: [
-        'es7.classProperties'
-    ],
-    loose: [
-        'es6.modules',
-        'es6.classes'
-    ],
-    ignore: /level-connect\/node_modules/
-})
-
+var logger = require( './log' )
 var app = require( '../' )
 var port = process.env.CONNECT_PORT || 14320
 
 app.listen( port )
-console.log( 'Listening on port %s', port )
+logger.info( 'Listening on port %s', port )

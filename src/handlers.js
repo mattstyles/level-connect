@@ -20,7 +20,16 @@ export default function( opts ) {
         this.onSuccess = function( opts ) {
             let status = opts.status || 200
 
-            log.info( this.xClient, this.request.method, this.request.url, status, this.request.ip, opts.body || 'OK' )
+            log.info({
+                event: 'onSuccess',
+                clientID: this.xClient || 'new',
+                method: this.request.method,
+                url: this.request.url,
+                status: status,
+                ip: this.request.ip,
+                ua: this.request.header[ 'user-agent' ],
+                body: opts.body || 'OK'
+            })
             log.debug( JSON.stringify( this.request ) )
 
             this.status = status
@@ -39,7 +48,16 @@ export default function( opts ) {
             let status = opts.status || 500
             let msg = opts.err ? opts.err.message : opts.body || 'Unspecified Error'
 
-            log.error( this.xClient, this.request.method, this.request.url, status, this.request.ip, msg )
+            log.error({
+                event: 'onFail',
+                clientID: this.xClient || 'new',
+                method: this.request.method,
+                url: this.request.url,
+                status: status,
+                ip: this.request.ip,
+                ua: this.request.header[ 'user-agent' ],
+                body: msg || 'OK'
+            })
             log.debug( JSON.stringify( this.request ) )
 
             if ( opts.err ) {
@@ -56,7 +74,15 @@ export default function( opts ) {
          * @param err <Error>
          */
         this.onForbidden = function( err ) {
-            log.warn( '403', this.request.ip, this.request.header[ 'user-agent' ], this.request.method, this.request.url )
+            log.warn({
+                event: 'onForbidden',
+                clientID: this.xClient || 'new',
+                method: this.request.method,
+                url: this.request.url,
+                status: 403,
+                ip: this.request.ip,
+                ua: this.request.header[ 'user-agent' ]
+            })
             this.status = 403
 
             if ( err ) {

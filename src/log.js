@@ -1,11 +1,11 @@
 
-import bunyan from 'bunyan'
+import Logger from 'koa-bunyan-log'
 import CONSTANTS from './constants'
 
-const log = bunyan.createLogger({
+const logger = new Logger({
     name: 'level-connect'
 })
 
-log.level( CONSTANTS.DEBUG ? 'debug' : 'info' )
+logger.level( CONSTANTS.DEBUG ? 'debug' : 'info' )
 
-export default log
+export default logger
