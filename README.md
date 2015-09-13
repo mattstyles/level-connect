@@ -3,8 +3,6 @@
 
 > Connect to a multi handle sublevel enabled leveldb over http
 
-Uses a newer method from `os` so `iojs version >= 2.3.0` is required
-
 ## Getting Started
 
 Level-connect doesn’t really care whether it is global or not, but the easiest way (although probably least useful) to get started is to install it globally
@@ -26,11 +24,11 @@ Logs use [bunyan](https://github.com/trentm/node-bunyan) so any of the tooling s
 The underlying db is a [level-party](https://www.npmjs.com/package/level-party) instance, although it is also [sublevelled](https://www.npmjs.com/package/level-sublevel). This means you can access the db from multiple processes, all on different ports.
 
 ```sh
-$ CONNECT_PORT=5000 ./bin/start
+$ CONNECT_PORT=5000 ./bin/connect
 ```
 
 ```sh
-$ CONNECT_PORT=5001 ./bin/start
+$ CONNECT_PORT=5001 ./bin/connect
 ```
 
 ```sh
