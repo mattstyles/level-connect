@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-var logger = require( './log' )
-var app = require( '../' )
+var logger = require( '../lib/log' )
+var app = require( '../lib' )
 var port = process.env.CONNECT_PORT || 14320
 
 app.listen( port )
