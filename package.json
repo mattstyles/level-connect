@@ -14,6 +14,14 @@
     "build": "babel src --out-dir lib",
     "watch": "babel src --out-dir lib --watch"
   },
+  "babel": {
+    "presets": [
+      "es2015-node4"
+    ],
+    "plugins": [
+      "transform-async-to-generator"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/mattstyles/level-connect.git"
@@ -38,19 +46,21 @@
   },
   "license": "MIT",
   "dependencies": {
-    "JSONStream": "^1.0.4",
-    "co-body": "^2.0.0",
+    "JSONStream": "^1.0.7",
+    "co-body": "^4.0.0",
     "denodeify": "^1.2.1",
     "eventemitter3": "^1.1.1",
-    "koa": "^1.0.0",
-    "koa-bunyan-log": "^1.0.0",
-    "koa-router": "^5.1.2",
-    "level-party": "^2.1.2",
-    "level-promisify": "^2.0.0",
-    "level-sublevel": "^6.5.1",
-    "node-uuid": "^1.4.3"
+    "koa": "^2.0.0-alpha.3",
+    "koa-bunyan-log": "^2.0.1",
+    "koa-router": "^5.4.0",
+    "level-party": "^3.0.4",
+    "level-promisify": "^2.0.1",
+    "level-sublevel": "^6.5.4",
+    "node-uuid": "^1.4.7"
   },
   "devDependencies": {
-    "babel": "^5.8.23"
+    "babel-cli": "^6.5.1",
+    "babel-plugin-transform-async-to-generator": "^6.5.0",
+    "babel-preset-es2015-node4": "^2.0.3"
   }
 }
