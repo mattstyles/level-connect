@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
-var logger = require( '../lib/log' )
 var app = require( '../lib' )
 var port = process.env.CONNECT_PORT || 14320
 
 app.listen( port )
-logger.info( 'Listening on port %s', port )
+console.log( 'Listening on port %s', port )

@@ -14,5 +14,5 @@ export default root
 export const clients = promisify( root.sublevel( '_client' ), CONSTANTS.DB_OPTS )
 
 export function getSublevel( sublevel ) {
-    return promisify( root.sublevel( sublevel, CONSTANTS.DB_OPTS ) )
+  return promisify( root.sublevel( sublevel, CONSTANTS.DB_OPTS ) )
 }

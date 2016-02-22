@@ -1,13 +1,18 @@
 
-import koa from 'koa'
-import logger from './log'
+import Koa from 'koa'
+import Logger from 'koa-bunyan-log'
 
 // App stuff
-const app = koa()
+const app = new Koa()
+const logger = new Logger({
+  name: 'level-connect'
+})
+
+logger.level( process.env.DEBUG ? 'debug' : 'info' )
 
 import handlers from './handlers'
 import handshake from './handshake'
-import router from './routes/router'
+// import router from './routes/router'
 
 // Attach logger
 app.use( logger.attach() )
@@ -20,7 +25,8 @@ app.use( handlers() )
 app.use( handshake() )
 
 // Define routes
-app.use( router() )
+// app.use( router() )
 
 
 export default app
+module.exports = app

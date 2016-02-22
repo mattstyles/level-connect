@@ -1,6 +1,4 @@
 
-import log from './log'
-
 /**
  * Handlers middleware
  * Creates independent handlers for each request
@@ -8,91 +6,91 @@ import log from './log'
 
 export default function( opts ) {
 
+  /**
+   * Runs in koa context
+   */
+  return async ( ctx, next ) => {
     /**
-     * Runs in koa context
+     * @param opts <Object>
+     *   status <?Integer> http code
+     *   body <?String> custom fail message
      */
-    return function *( next ) {
-        /**
-         * @param opts <Object>
-         *   status <?Integer> http code
-         *   body <?String> custom fail message
-         */
-        this.onSuccess = function( opts ) {
-            let status = opts.status || 200
+    ctx.onSuccess = function( opts ) {
+      let status = opts.status || 200
 
-            log.info({
-                event: 'onSuccess',
-                clientID: this.xClient || 'new',
-                method: this.request.method,
-                url: this.request.url,
-                status: status,
-                ip: this.request.ip,
-                ua: this.request.header[ 'user-agent' ],
-                body: opts.body || 'OK'
-            })
-            log.debug( JSON.stringify( this.request ) )
+      ctx.logger.info({
+        event: 'onSuccess',
+        clientID: ctx.xClient || 'new',
+        method: ctx.request.method,
+        url: ctx.request.url,
+        status: status,
+        ip: ctx.request.ip,
+        ua: ctx.request.header[ 'user-agent' ],
+        body: opts.body || 'OK'
+      })
+      ctx.logger.debug( JSON.stringify( ctx.request ) )
 
-            this.status = status
-            this.body = opts.body || {
-                body: 'OK'
-            }
-        }
-
-        /**
-         * @param opts <Object>
-         *   status <?Integer> http code
-         *   body <?String> custom fail message
-         *   err <?Error> Error triggering the fail
-         */
-        this.onFail = function( opts ) {
-            let status = opts.status || 500
-            let msg = opts.err ? opts.err.message : opts.body || 'Unspecified Error'
-
-            log.error({
-                event: 'onFail',
-                clientID: this.xClient || 'new',
-                method: this.request.method,
-                url: this.request.url,
-                status: status,
-                ip: this.request.ip,
-                ua: this.request.header[ 'user-agent' ],
-                body: msg || 'OK'
-            })
-            log.debug( JSON.stringify( this.request ) )
-
-            if ( opts.err ) {
-                log.debug( opts.err )
-            }
-
-            this.status = status
-            this.body = {
-                body: msg
-            }
-        }
-
-        /**
-         * @param err <Error>
-         */
-        this.onForbidden = function( err ) {
-            log.warn({
-                event: 'onForbidden',
-                clientID: this.xClient || 'new',
-                method: this.request.method,
-                url: this.request.url,
-                status: 403,
-                ip: this.request.ip,
-                ua: this.request.header[ 'user-agent' ]
-            })
-            this.status = 403
-
-            if ( err ) {
-                log.error( err )
-                this.body = {
-                    body: err.message
-                }
-            }
-        }
-
-        yield next
+      ctx.status = status
+      ctx.body = opts.body || {
+        body: 'OK'
+      }
     }
+
+    /**
+     * @param opts <Object>
+     *   status <?Integer> http code
+     *   body <?String> custom fail message
+     *   err <?Error> Error triggering the fail
+     */
+    ctx.onFail = function( opts ) {
+      let status = opts.status || 500
+      let msg = opts.err ? opts.err.message : opts.body || 'Unspecified Error'
+
+      ctx.logger.error({
+        event: 'onFail',
+        clientID: ctx.xClient || 'new',
+        method: ctx.request.method,
+        url: ctx.request.url,
+        status: status,
+        ip: ctx.request.ip,
+        ua: ctx.request.header[ 'user-agent' ],
+        body: msg || 'OK'
+      })
+      ctx.logger.debug( JSON.stringify( ctx.request ) )
+
+      if ( opts.err ) {
+        ctx.logger.debug( opts.err )
+      }
+
+      ctx.status = status
+      ctx.body = {
+        body: msg
+      }
+    }
+
+    /**
+     * @param err <Error>
+     */
+    ctx.onForbidden = function( err ) {
+      ctx.logger.warn({
+        event: 'onForbidden',
+        clientID: ctx.xClient || 'new',
+        method: ctx.request.method,
+        url: ctx.request.url,
+        status: 403,
+        ip: ctx.request.ip,
+        ua: ctx.request.header[ 'user-agent' ]
+      })
+      ctx.status = 403
+
+      if ( err ) {
+        ctx.logger.error( err )
+        ctx.body = {
+          body: err.message
+        }
+      }
+    }
+
+    await next()
+  }
 }
