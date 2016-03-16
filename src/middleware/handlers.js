@@ -55,9 +55,8 @@ export default function( opts ) {
         ua: ctx.request.header[ 'user-agent' ],
         body: msg || 'OK'
       })
-      ctx.logger.debug( ctx.request )
 
-      if ( opts.err ) {
+      if ( opts.err && opts.status !== 404 ) {
         ctx.logger.debug( opts.err )
       }
 

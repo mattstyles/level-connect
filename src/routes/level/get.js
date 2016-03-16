@@ -1,27 +1,27 @@
 
 import { getSublevel } from '../../db'
 
-export default function *( next ) {
-    let sub = null
+export default async ctx => {
+  let sub = null
 
-    // Grab the sub and return from route on error
-    try {
-        sub = getSublevel( this.params.sublevel )
-    } catch( err ) {
-        this.onFail({ err: err })
-        return
-    }
+  // Grab the sub and return from route on error
+  try {
+    sub = getSublevel( ctx.params.sublevel )
+  } catch( err ) {
+    ctx.onFail({ err: err })
+    return
+  }
 
-    try {
-        let res = yield sub.get( this.params.key )
-        this.onSuccess({
-            status: 200,
-            body: res
-        })
-    } catch( err ) {
-        this.onFail({
-            status: err.notFound ? 404 : 500,
-            err: err
-        })
-    }
+  try {
+    let res = await sub.get( ctx.params.key )
+    ctx.onSuccess({
+      status: 200,
+      body: res
+    })
+  } catch( err ) {
+    ctx.onFail({
+      status: err.notFound ? 404 : 500,
+      err: err
+    })
+  }
 }

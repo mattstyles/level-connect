@@ -1,11 +1,17 @@
 
 import Router from 'koa-router'
 
-import ping from './util/ping'
-import token from './clients/new'
-
 import CONSTANTS from '../constants'
 
+import ping from './util/ping'
+import token from './clients/new'
+import get from './level/get'
+import put from './level/put'
+import del from './level/del'
+
+/**
+ * Creates the router and returns a middleware function
+ */
 export default function( opts ) {
   let router = new Router()
 
@@ -15,9 +21,9 @@ export default function( opts ) {
 
   // router.post( '/:sublevel', require( './level/batch' ) )
   // router.get( '/:sublevel', require( './level/read' ) )
-  // router.post( '/:sublevel/:key', require( './level/put' ) )
-  // router.get( '/:sublevel/:key', require( './level/get' ) )
-  // router.delete( '/:sublevel/:key', require( './level/del' ) )
+  router.post( '/:sublevel/:key', put )
+  router.get( '/:sublevel/:key', get )
+  router.delete( '/:sublevel/:key', del )
 
   return router.routes()
 }
