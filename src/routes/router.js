@@ -9,6 +9,7 @@ import get from './level/get'
 import put from './level/put'
 import del from './level/del'
 import read from './level/read'
+import batch from './level/batch'
 
 /**
  * Creates the router and returns a middleware function
@@ -20,7 +21,7 @@ export default function( opts ) {
 
   router.post( CONSTANTS.TOKEN_REQUEST_URL, token )
 
-  // router.post( '/:sublevel', require( './level/batch' ) )
+  router.post( '/:sublevel', batch )
   router.get( '/:sublevel', read )
   router.post( '/:sublevel/:key', put )
   router.get( '/:sublevel/:key', get )
