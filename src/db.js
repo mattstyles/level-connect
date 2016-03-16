@@ -1,7 +1,7 @@
 
 import party from 'level-party'
 import sublevel from 'level-sublevel'
-import promisify from 'level-promisify'
+import promisify from 'then-levelup'
 
 import CONSTANTS from './constants'
 

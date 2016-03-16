@@ -1,6 +1,6 @@
 
 import CONSTANTS from './constants'
-import { clients} from './db'
+import { clients } from './db'
 
 /**
  * Client handshake middleware
@@ -46,6 +46,7 @@ export default function( opts ) {
       }
 
       // Freshen the timestamp
+      // @TODO why wait here?
       await clients.put( clientID, Object.assign( res, {
         timestamp: Date.now()
       }))
