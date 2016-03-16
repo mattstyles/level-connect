@@ -1,6 +1,6 @@
 
-import CONSTANTS from './constants'
-import { clients } from './db'
+import CONSTANTS from '../constants'
+import { clients } from '../db'
 
 /**
  * Client handshake middleware

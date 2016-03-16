@@ -2,8 +2,8 @@
 import Koa from 'koa'
 import Logger from 'koa-bunyan-log'
 
-import handlers from './handlers'
-import handshake from './handshake'
+import handlers from './middleware/handlers'
+import handshake from './middleware/handshake'
 import router from './routes/router'
 
 // App stuff
