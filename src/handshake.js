@@ -40,24 +40,24 @@ export default function( opts ) {
 
       // Check ip is stable
       if ( res.ip !== ctx.request.ip ) {
-        await clients.del( clientID )
+        clients.del( clientID )
         ctx.onForbidden( 'Token authentication failed. Try requesting a new one.' )
         return
       }
 
       // Check token should not be stale
       if ( Date.now() - res.timestamp > CONSTANTS.TOKEN_STALE ) {
-        await clients.del( clientID )
+        clients.del( clientID )
         ctx.onForbidden( 'Token stale. Try requesting a new one.' )
         return
       }
 
       // Freshen the timestamp
-      // @TODO why wait here?
-      await clients.put( clientID, Object.assign( res, {
+      // Fire and forget
+      clients.put( clientID, {
         timestamp: Date.now(),
         ip: ctx.request.ip
-      }))
+      })
 
       ctx.xClient = clientID
       await next()
