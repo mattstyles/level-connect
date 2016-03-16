@@ -12,7 +12,9 @@
     "clean": "rm -rf lib && mkdir lib",
     "prebuild": "npm run clean",
     "build": "babel src --out-dir lib",
-    "watch": "babel src --out-dir lib --watch"
+    "watch": "babel src --out-dir lib --watch",
+    "prestart": "npm run build",
+    "start": "bin/connect | bunyan -o short"
   },
   "babel": {
     "presets": [
@@ -48,6 +50,7 @@
     "koa": "^2.0.0-alpha.3",
     "koa-bunyan-log": "^2.0.1",
     "koa-router": "^7.0.1",
+    "level-errors": "^1.0.4",
     "level-party": "^3.0.4",
     "level-sublevel": "^6.5.4",
     "node-uuid": "^1.4.7",
@@ -55,6 +58,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",
-    "babel-preset-node5": "^10.9.0"
+    "babel-preset-node5": "^10.9.0",
+    "bunyan": "^1.7.1"
   }
 }

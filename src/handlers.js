@@ -79,15 +79,23 @@ export default function( opts ) {
         url: ctx.request.url,
         status: 403,
         ip: ctx.request.ip,
-        ua: ctx.request.header[ 'user-agent' ]
+        ua: ctx.request.header[ 'user-agent' ],
+        body: typeof err === 'string' ? err : null
       })
-      ctx.status = 403
 
-      if ( err ) {
+      if ( err instanceof Error ) {
         ctx.logger.error( err )
+        ctx.status = 500
         ctx.body = {
-          body: err.message
+          body: 'Server error'
         }
+
+        return
+      }
+
+      ctx.status = 403
+      ctx.body = {
+        body: err
       }
     }
 

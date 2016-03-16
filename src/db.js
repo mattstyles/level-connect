@@ -1,7 +1,7 @@
 
 import party from 'level-party'
 import sublevel from 'level-sublevel'
-import promisify from 'then-levelup'
+import then from 'then-levelup'
 
 import CONSTANTS from './constants'
 
@@ -11,8 +11,8 @@ const root = sublevel( level )
 
 export default root
 
-export const clients = promisify( root.sublevel( '_client' ), CONSTANTS.DB_OPTS )
+export const clients = then( root.sublevel( '_client' ), CONSTANTS.DB_OPTS )
 
 export function getSublevel( sublevel ) {
-  return promisify( root.sublevel( sublevel, CONSTANTS.DB_OPTS ) )
+  return then( root.sublevel( sublevel, CONSTANTS.DB_OPTS ) )
 }

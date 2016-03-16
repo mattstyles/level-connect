@@ -29,20 +29,20 @@ export default function( opts ) {
       let res = null
       try {
         res = await clients.get( clientID )
-      } catch (err) {
-        throw new Error( 'ClientID error: ' + err.message )
-      }
+      } catch( err ) {
+        if ( err.notFound || err.status === 404 ) {
+          ctx.onForbidden( 'Token invalid. Try requesting a new one.' )
+          return
+        }
 
-      if ( !res.active ) {
-        throw new Error( 'Token inactive. Try requesting a new one.' )
+        throw new Error( 'ClientID error: ' + err.message )
       }
 
       // Check token should not be stale
       if ( Date.now() - res.timestamp > CONSTANTS.TOKEN_STALE ) {
-        await clients.put( clientID, Object.assign( res, {
-          active: false
-        }))
-        throw new Error( 'Token stale. Try requesting a new one.' )
+        await clients.del( clientID )
+        ctx.onForbidden( 'Token stale. Try requesting a new one.' )
+        return
       }
 
       // Freshen the timestamp
