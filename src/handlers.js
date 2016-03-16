@@ -28,7 +28,6 @@ export default function( opts ) {
         ua: ctx.request.header[ 'user-agent' ],
         body: opts.body || 'OK'
       })
-      ctx.logger.debug( JSON.stringify( ctx.request ) )
 
       ctx.status = status
       ctx.body = opts.body || {
@@ -56,7 +55,7 @@ export default function( opts ) {
         ua: ctx.request.header[ 'user-agent' ],
         body: msg || 'OK'
       })
-      ctx.logger.debug( JSON.stringify( ctx.request ) )
+      ctx.logger.debug( ctx.request )
 
       if ( opts.err ) {
         ctx.logger.debug( opts.err )

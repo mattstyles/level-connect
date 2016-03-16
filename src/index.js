@@ -2,6 +2,10 @@
 import Koa from 'koa'
 import Logger from 'koa-bunyan-log'
 
+import handlers from './handlers'
+import handshake from './handshake'
+import router from './routes/router'
+
 // App stuff
 const app = new Koa()
 const logger = new Logger({
@@ -10,22 +14,16 @@ const logger = new Logger({
 
 logger.level( process.env.DEBUG ? 'debug' : 'info' )
 
-import handlers from './handlers'
-import handshake from './handshake'
-// import router from './routes/router'
 
-// Attach logger
 app.use( logger.attach() )
 app.use( logger.attachRequest() )
 
-// Attach output handlers
-app.use( handlers() )
 
-// Client handshake
+app.use( handlers() )
 app.use( handshake() )
 
-// Define routes
-// app.use( router() )
+
+app.use( router() )
 
 
 export default app

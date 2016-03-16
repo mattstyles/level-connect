@@ -13,9 +13,9 @@
     "prebuild": "npm run clean",
     "build": "babel src --out-dir lib",
     "watch": "babel src --out-dir lib --watch",
-    "reload": "supervisor -w lib -t true -- bin/connect | bunyan -o short" ,
+    "reload": "DEBUG=true supervisor -w lib -n exit -t true -- bin/connect | bunyan -o short" ,
     "predev": "npm run build",
-    "dev": "( npm run watch && npm run reload)",
+    "dev": "( npm run watch & npm run reload)",
     "prestart": "npm run build",
     "start": "bin/connect | bunyan -o short"
   },

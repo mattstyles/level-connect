@@ -2,37 +2,37 @@
 import uuid from 'node-uuid'
 
 import CONSTANTS from '../../constants'
-import log from '../../log'
 import { clients } from '../../db'
+import { wait } from '../../util/timing'
 
-export default function *( next ) {
-    // Quick check something is in the header
-    if ( !this.request.headers[ CONSTANTS.TOKEN_HEADER ] ) {
-        this.onForbidden()
-        return
-    }
 
-    // @TODO is this the best way to create the token? by ip/hostname or something?
-    let newID = uuid.v4()
+export default async ctx => {
+  // Quick check something is in the header
+  if ( !ctx.request.headers[ CONSTANTS.TOKEN_HEADER ] ) {
+    ctx.onForbidden()
+    return
+  }
 
-    try {
-        yield clients.put( newID, {
-            active: true,
-            timestamp: Date.now()
-        })
-    } catch( err ) {
-        log.error( this.request.ip, this.request.header[ 'user-agent' ], this.request.method, this.request.url, 'Error putting new token' )
-        this.status = 500
-        return
-    }
+  // @TODO best way to create token?
+  let newID = uuid.v4()
 
-    log.info( newID, this.request.method, this.request.url, 'OK', this.request.ip )
-    log.debug( JSON.stringify( this.request ) )
-
-    this.onSuccess({
-        status: 201,
-        body: {
-            id: newID
-        }
+  try {
+    await clients.put( newID, {
+      active: true,
+      timestamp: Date.now()
     })
+  } catch( err ) {
+    ctx.onFail( err )
+    return
+  }
+
+  // Time-limit token generation
+  await wait( CONSTANTS.TOKEN_DELAY )
+
+  ctx.onSuccess({
+    status: 201,
+    body: {
+      id: newID
+    }
+  })
 }
