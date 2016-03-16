@@ -13,6 +13,9 @@
     "prebuild": "npm run clean",
     "build": "babel src --out-dir lib",
     "watch": "babel src --out-dir lib --watch",
+    "reload": "supervisor -w lib -t true -- bin/connect | bunyan -o short" ,
+    "predev": "npm run build",
+    "dev": "( npm run watch && npm run reload)",
     "prestart": "npm run build",
     "start": "bin/connect | bunyan -o short"
   },
@@ -36,7 +39,7 @@
     "party"
   ],
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=5.0.0"
   },
   "author": {
     "name": "Matt Styles",
@@ -59,6 +62,7 @@
   "devDependencies": {
     "babel-cli": "^6.6.5",
     "babel-preset-node5": "^10.9.0",
-    "bunyan": "^1.7.1"
+    "bunyan": "^1.7.1",
+    "supervisor": "^0.9.1"
   }
 }
