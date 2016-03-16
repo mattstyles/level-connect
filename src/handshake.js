@@ -60,7 +60,7 @@ export default function( opts ) {
       }))
 
       ctx.xClient = clientID
-      await next
+      await next()
     } catch( err ) {
       ctx.onForbidden( err )
       return
