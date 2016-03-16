@@ -10,7 +10,7 @@ const CONSTANTS = {
 
   DEFAULT_PATH: path.join( os.homedir(), '.level-connect.lev' ),
   DB_OPTS: {
-    encoding: 'json'
+    valueEncoding: 'json'
   },
   PING_URL: '/_ping',
 

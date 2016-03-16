@@ -7,7 +7,7 @@ import token from './clients/new'
 import CONSTANTS from '../constants'
 
 export default function( opts ) {
-  let router = Router()
+  let router = new Router()
 
   router.get( CONSTANTS.PING_URL, ping )
 

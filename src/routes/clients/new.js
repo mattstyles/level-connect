@@ -18,7 +18,7 @@ export default async ctx => {
 
   try {
     await clients.put( newID, {
-      active: true,
+      ip: ctx.request.ip,
       timestamp: Date.now()
     })
   } catch( err ) {

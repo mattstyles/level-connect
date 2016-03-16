@@ -18,7 +18,7 @@ export default root
 /**
  * Expose connected clients db
  */
-export const clients = then( root.sublevel( '_client' ), CONSTANTS.DB_OPTS )
+export const clients = then( root.sublevel( '_client', CONSTANTS.DB_OPTS ) )
 
 
 /**
