@@ -17,13 +17,9 @@ export default function chunker() {
       // Error means a parse error caused by a line split
       // Partial line is already stored in body so pass through
       // the next hit should complete it and get JSON.parse working
-      console.log( '     ', chunk.toString() )
       done()
       return
     }
-
-
-    console.log( data )
 
     // Reset body as this request is dealt with
     body = []

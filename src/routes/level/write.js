@@ -5,7 +5,7 @@ import es from 'event-stream'
 import { getSublevel } from '../../db'
 import chunkCombiner from '../../util/chunkCombiner'
 
-
+import { wait } from '../../util/timing'
 
 /**
  * Write route
@@ -33,10 +33,16 @@ export default async ctx => {
       .pipe( es.map( chunkCombiner() ) )
       .pipe( ws )
 
-    ctx.onSuccess({
-      // status: 200,
-      body: ctx.req
+    ctx.req.on( 'end', () => {
+      ctx.onSuccess({
+        status: 200,
+        body: ctx.req
+      })
     })
+
+    // This pauses the stream until request emits
+    ctx.body = ctx.req
+    await wait( 100 )
 
   } catch ( err ) {
     ctx.onFail({
