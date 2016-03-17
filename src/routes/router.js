@@ -9,6 +9,7 @@ import get from './level/get'
 import put from './level/put'
 import del from './level/del'
 import read from './level/read'
+import write from './level/write'
 import batch from './level/batch'
 
 /**
@@ -21,8 +22,9 @@ export default function( opts ) {
 
   router.post( CONSTANTS.TOKEN_REQUEST_URL, token )
 
-  router.post( '/:sublevel', batch )
+  // router.post( '/:sublevel', batch )
   router.get( '/:sublevel', read )
+  router.post( '/:sublevel', write )
   router.post( '/:sublevel/:key', put )
   router.get( '/:sublevel/:key', get )
   router.delete( '/:sublevel/:key', del )

@@ -42,9 +42,9 @@ export default async ctx => {
   // Try to batch it up
   try {
     await sub.batch( ops )
-    Object.assign( ctx, ctx.onSuccess({
+    ctx, ctx.onSuccess({
       status: 201
-    }))
+    })
   } catch( err ) {
     ctx.onFail({
       status: err.notFound ? 404 : 500,

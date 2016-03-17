@@ -22,12 +22,6 @@ export default async ctx => {
   try {
     ctx.type = 'json'
     let stream = sub.createReadStream({ valueEncoding: 'json' })
-      // .on( 'data', data => {
-      //   ctx.logger.debug( 'READ', ctx.xClient, ctx.request.url, data.key + ':' + data.value )
-      // })
-      // .on( 'error', err => {
-      //   ctx.logger.error( 'READ', ctx.xClient, ctx.request.url, err )
-      // })
       .pipe( JSONStream.stringify( false ) )
 
     ctx.onSuccess({

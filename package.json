@@ -13,7 +13,7 @@
     "prebuild": "npm run clean",
     "build": "babel src --out-dir lib",
     "watch": "babel src --out-dir lib --watch",
-    "reload": "DEBUG=true supervisor -w lib -n exit -t true -- bin/connect | bunyan -o short" ,
+    "reload": "DEBUG=true supervisor -w lib -n exit -t true -- bin/connect | bunyan -o short",
     "predev": "npm run build",
     "dev": "( npm run watch & npm run reload)",
     "prestart": "npm run build",
@@ -56,8 +56,10 @@
     "level-errors": "^1.0.4",
     "level-party": "^3.0.4",
     "level-sublevel": "^6.5.4",
+    "level-ws": "0.0.1",
     "node-uuid": "^1.4.7",
-    "then-levelup": "github:mattstyles/then-levelup"
+    "then-levelup": "github:mattstyles/then-levelup",
+    "through2": "^2.0.1"
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",

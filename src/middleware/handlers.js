@@ -26,7 +26,8 @@ export default function( opts ) {
         status: status,
         ip: ctx.request.ip,
         ua: ctx.request.header[ 'user-agent' ],
-        body: opts.body || 'OK'
+        // body: opts.body || 'OK'
+        body: 'OK'
       })
 
       ctx.status = status
