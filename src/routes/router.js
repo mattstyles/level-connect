@@ -22,9 +22,17 @@ export default function( opts ) {
 
   router.post( CONSTANTS.TOKEN_REQUEST_URL, token )
 
-  // router.post( '/:sublevel', batch )
+  // Switch to batch or writable stream depending on if the response
+  // is whole or chunked
+  router.post( '/:sublevel', async ctx => {
+    if ( ctx.headers[ 'transfer-encoding' ] === 'chunked' ) {
+      await write( ctx )
+      return
+    }
+
+    await batch( ctx )
+  })
   router.get( '/:sublevel', read )
-  router.post( '/:sublevel', write )
   router.post( '/:sublevel/:key', put )
   router.get( '/:sublevel/:key', get )
   router.delete( '/:sublevel/:key', del )
