@@ -30,10 +30,13 @@ export default async ctx => {
       try {
         data = JSON.parse( chunk.toString() )
       } catch ( err ) {
-        throw new Error( err )
+        console.error( chunk.toString() )
+        console.error( err )
+        data = ''
       }
 
-      console.log( data )
+      // console.log( data )
+
 
       done( null, data )
     })
@@ -42,6 +45,10 @@ export default async ctx => {
     ctx.req
       .pipe( os )
       .pipe( stream )
+
+    ctx.req.on( 'error', err => {
+      console.error( err )
+    })
 
 
     ctx.onSuccess({
