@@ -1,12 +1,15 @@
 
 import levelws from 'level-ws'
-import through2 from 'through2'
+import es from 'event-stream'
 
 import { getSublevel } from '../../db'
+import chunkCombiner from '../../util/chunkCombiner'
+
+
 
 /**
- * Read route
- * Streams a full read of the sublevel
+ * Write route
+ * Streams a write into the sublevel
  */
 export default async ctx => {
   let sub = null
@@ -21,38 +24,17 @@ export default async ctx => {
 
   try {
     ctx.type = 'json'
-    let stream = levelws( sub ).createWriteStream({
-      valueEncoding: 'json'
+    let ws = levelws( sub ).createWriteStream({
+      valueEncoding: ctx.type
     })
 
-    let os = through2.obj( ( chunk, enc, done ) => {
-      let data = null
-      try {
-        data = JSON.parse( chunk.toString() )
-      } catch ( err ) {
-        console.error( chunk.toString() )
-        console.error( err )
-        data = ''
-      }
-
-      // console.log( data )
-
-
-      done( null, data )
-    })
-
-    // Accept consistent data and pipe to level
+    // Sanitize and pass to level write stream
     ctx.req
-      .pipe( os )
-      .pipe( stream )
-
-    ctx.req.on( 'error', err => {
-      console.error( err )
-    })
-
+      .pipe( es.map( chunkCombiner() ) )
+      .pipe( ws )
 
     ctx.onSuccess({
-      status: 200,
+      // status: 200,
       body: ctx.req
     })
 
